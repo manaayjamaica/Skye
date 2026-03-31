@@ -232,12 +232,6 @@
       <p class="tagline">Real-time weather at your fingertips</p>
     </header>
 
-    <div class="notice">
-      <strong>Setup required:</strong> Replace <code>YOUR_API_KEY</code> in <code>script.js</code> with a free key from
-      <a href="https://openweathermap.org/api" target="_blank" style="color:var(--accent)">openweathermap.org</a>.
-      The free tier includes current weather for any city worldwide.
-    </div>
-
     <div class="search-bar">
       <input type="text" id="cityInput" placeholder="Search city… e.g. Tokyo, London" />
       <button class="btn-search" id="searchBtn" onclick="fetchWeather()">Search</button>
@@ -247,7 +241,7 @@
   </div>
 
   <script>
-    const API_KEY = 'YOUR_API_KEY'; // 🔑 Replace with your OpenWeatherMap API key
+    const API_KEY = 'dfee0164818dfeab9b673f3477cb2279'; // 🔑 Replace with your OpenWeatherMap API key
 
     const weatherIcons = {
       'clear sky': '☀️', 'few clouds': '🌤', 'scattered clouds': '⛅',
