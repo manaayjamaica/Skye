@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skye — Weather Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky: #1a2a4a;
+      --sky2: #0f1e38;
+      --cloud: #243455;
+      --border: rgba(255,255,255,0.08);
+      --accent: #7eb8f7;
+      --warm: #fbbf60;
+      --text: #e8eef8;
+      --muted: #6e88b0;
+    }
+
+    body {
+      background: var(--sky2);
+      background-image: radial-gradient(ellipse at 20% 0%, #1e3a6e 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 100%, #0e2a50 0%, transparent 60%);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: rise 0.7s ease both;
+    }
+
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--accent);
+    }
+
+    .tagline { color: var(--muted); font-size: 0.9rem; font-weight: 300; margin-top: 0.25rem; }
+
+    .search-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      animation: rise 0.7s 0.1s ease both;
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: var(--cloud);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.9rem 1.4rem;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-bar input:focus { border-color: var(--accent); }
+    .search-bar input::placeholder { color: var(--muted); }
+
+    .btn-search {
+      background: var(--accent);
+      color: var(--sky2);
+      border: none;
+      border-radius: 14px;
+      padding: 0.9rem 1.6rem;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .btn-search:hover { background: #a8d0ff; transform: scale(1.04); }
+    .btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .notice {
+      background: rgba(126,184,247,0.08);
+      border: 1px solid rgba(126,184,247,0.2);
+      border-radius: 12px;
+      padding: 1rem 1.4rem;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      animation: rise 0.7s 0.15s ease both;
+    }
+
+    .notice strong { color: var(--accent); }
+
+    #weatherCard { animation: rise 0.5s ease both; }
+
+    .main-card {
+      background: var(--cloud);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2rem;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .main-card::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(126,184,247,0.1) 0%, transparent 70%);
+    }
+
+    .city-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .country { color: var(--muted); font-size: 0.9rem; }
+
+    .temp-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      margin: 1.5rem 0 1rem;
+    }
+
+    .temp-big {
+      font-size: 5rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--warm);
+    }
+
+    .temp-feels {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .weather-icon { font-size: 3.5rem; line-height: 1; }
+
+    .description {
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-transform: capitalize;
+      color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .grid-card {
+      background: var(--sky);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .grid-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .grid-val { font-size: 1.3rem; font-weight: 700; }
+
+    .error-msg {
+      background: rgba(224,80,80,0.1);
+      border: 1px solid rgba(224,80,80,0.3);
+      border-radius: 12px;
+      padding: 1rem 1.4rem;
+      color: #e08080;
+      font-size: 0.9rem;
+      text-align: center;
+      animation: rise 0.3s ease;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    .demo-banner {
+      background: rgba(251,191,96,0.1);
+      border: 1px solid rgba(251,191,96,0.25);
+      border-radius: 12px;
+      padding: 0.75rem 1.2rem;
+      font-size: 0.82rem;
+      color: var(--warm);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">☁ Skye</div>
+      <p class="tagline">Real-time weather at your fingertips</p>
+    </header>
+
+    <div class="notice">
+      <strong>Setup required:</strong> Replace <code>YOUR_API_KEY</code> in <code>script.js</code> with a free key from
+      <a href="https://openweathermap.org/api" target="_blank" style="color:var(--accent)">openweathermap.org</a>.
+      The free tier includes current weather for any city worldwide.
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="cityInput" placeholder="Search city… e.g. Tokyo, London" />
+      <button class="btn-search" id="searchBtn" onclick="fetchWeather()">Search</button>
+    </div>
+
+    <div id="weatherCard"></div>
+  </div>
+
+  <script>
+    const API_KEY = 'YOUR_API_KEY'; // 🔑 Replace with your OpenWeatherMap API key
+
+    const weatherIcons = {
+      'clear sky': '☀️', 'few clouds': '🌤', 'scattered clouds': '⛅',
+      'broken clouds': '☁️', 'overcast clouds': '☁️', 'shower rain': '🌧',
+      'rain': '🌧', 'light rain': '🌦', 'moderate rain': '🌧',
+      'thunderstorm': '⛈', 'snow': '❄️', 'mist': '🌫', 'fog': '🌫',
+      'haze': '🌫', 'drizzle': '🌦'
+    };
+
+    function getIcon(description) {
+      const key = Object.keys(weatherIcons).find(k => description.toLowerCase().includes(k));
+      return key ? weatherIcons[key] : '🌡';
+    }
+
+    document.getElementById('cityInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') fetchWeather();
+    });
+
+    async function fetchWeather() {
+      const city = document.getElementById('cityInput').value.trim();
+      if (!city) return;
+
+      const card = document.getElementById('weatherCard');
+      const btn  = document.getElementById('searchBtn');
+
+      card.innerHTML = `<div class="loading"><div class="spinner"></div><br>Fetching weather…</div>`;
+      btn.disabled = true;
+
+      try {
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${API_KEY}`;
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'City not found');
+        }
+
+        const data = await res.json();
+        renderWeather(data);
+
+      } catch (err) {
+        if (API_KEY === 'YOUR_API_KEY') {
+          renderDemo(city);
+        } else {
+          card.innerHTML = `<div class="error-msg">⚠️ ${err.message}. Please check the city name or your API key.</div>`;
+        }
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderWeather(data) {
+      const card = document.getElementById('weatherCard');
+      const desc = data.weather[0].description;
+      const icon = getIcon(desc);
+      card.innerHTML = `
+        <div class="main-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="city-name">${data.name}</div>
+              <div class="country">${data.sys.country} · ${new Date().toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}</div>
+            </div>
+            <div class="weather-icon">${icon}</div>
+          </div>
+          <div class="temp-row">
+            <div class="temp-big">${Math.round(data.main.temp)}°</div>
+            <div class="temp-feels">Feels like ${Math.round(data.main.feels_like)}°C</div>
+          </div>
+          <div class="description">${desc}</div>
+          <div class="grid">
+            <div class="grid-card">
+              <div class="grid-label">Humidity</div>
+              <div class="grid-val">${data.main.humidity}%</div>
+            </div>
+            <div class="grid-card">
+              <div class="grid-label">Wind</div>
+              <div class="grid-val">${data.wind.speed} m/s</div>
+            </div>
+            <div class="grid-card">
+              <div class="grid-label">Pressure</div>
+              <div class="grid-val">${data.main.pressure} hPa</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDemo(city) {
+      const card = document.getElementById('weatherCard');
+      card.innerHTML = `
+        <div class="demo-banner">⚡ Demo mode — add your API key to see live data</div>
+        <div class="main-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="city-name">${city || 'Demo City'}</div>
+              <div class="country">PH · ${new Date().toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'})}</div>
+            </div>
+            <div class="weather-icon">⛅</div>
+          </div>
+          <div class="temp-row">
+            <div class="temp-big">28°</div>
+            <div class="temp-feels">Feels like 31°C</div>
+          </div>
+          <div class="description">Partly cloudy</div>
+          <div class="grid">
+            <div class="grid-card"><div class="grid-label">Humidity</div><div class="grid-val">72%</div></div>
+            <div class="grid-card"><div class="grid-label">Wind</div><div class="grid-val">5 m/s</div></div>
+            <div class="grid-card"><div class="grid-label">Pressure</div><div class="grid-val">1012 hPa</div></div>
+          </div>
+        </div>`;
+    }
+  </script>
+</body>
+</html>
